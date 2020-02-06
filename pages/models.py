@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Pages(models.Model):
+class Page(models.Model):
     title = models.CharField(max_length=50, null=True)
     description = models.CharField(max_length=255, null=True)
     keywords = models.CharField(max_length=255, null=True)
@@ -9,4 +9,5 @@ class Pages(models.Model):
     slug = models.CharField(max_length=50, db_index=True, unique=True)
 
     class Meta:
+        db_table = 'pages'
         ordering = ['id']

@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Pages
+from .models import Page
 
 
 class PageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pages
+        model = Page
         # fields = ['id', 'title']
         fields = '__all__'
