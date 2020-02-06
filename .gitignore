@@ -1,0 +1,8 @@
+venv/
+*.py[cod]
+__pycache__/
+.coverage
+db.sql*
+
+## IDE
+.idea
