@@ -1,19 +1,17 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
+from mixer.backend.django import mixer
+from django.contrib.auth import get_user_model
 
 
-class PagesTestCase(TestCase):
-    fixtures = ['pages.json']
-
+class PagesTestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username="admin", password="admin", is_superuser=True, is_active=True,
-                                        is_staff=True)
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+        self.page = mixer.blend('pages.page')
+        self.admin = mixer.blend(get_user_model(), is_superuser=True)
 
     def test_get_pages(self):
+        mixer.cycle(5).blend('pages.page')
         response = self.client.get('/api/v1/pages/')
+        self.assertEqual(200, response.status_code)
         pages = response.data
         self.assertIn('count', pages)
         self.assertIn('results', pages)
@@ -21,13 +19,16 @@ class PagesTestCase(TestCase):
         self.check_page_structure(page)
 
     def test_get_page(self):
-        response = self.client.get('/api/v1/pages/1')
+        response = self.client.get('/api/v1/pages/' + str(self.page.id))
+        self.assertEqual(200, response.status_code)
         self.check_page_structure(response.data)
 
     def test_patch_page(self):
-        data = dict(title="updated title")
-        response = self.client.patch('/api/v1/pages/1', data)
-        self.assertEqual('updated title', response.data['title'])
+        title = "updated title"
+        self.client.force_login(user=self.admin)
+        response = self.client.patch('/api/v1/pages/' + str(self.page.id), dict(title=title))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(title, response.data['title'])
 
     def check_page_structure(self, page: dict):
         self.assertIn('id', page)
